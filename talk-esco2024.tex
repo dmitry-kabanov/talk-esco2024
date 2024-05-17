@@ -1,0 +1,182 @@
+\documentclass[10pt, aspectratio=169, progressbar=frametitle]{beamer}
+\usetheme[numbering=fraction]{metropolis}
+
+% -----------------------------------------------------------------------------
+% Fonts
+\usepackage[utf8]{inputenc}
+\usepackage[defaultsans,scale=1.0]{lato}
+\usepackage{fourier}
+\usepackage[scale=1.05]{inconsolata}
+\usepackage{microtype}
+\usefonttheme[onlymath]{serif}
+
+% -----------------------------------------------------------------------------
+% Graphics
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage[beamer,customcolors]{hf-tikz}
+\usetikzlibrary{arrows.meta, calc, positioning, shapes.geometric}
+\input{tikz/styles.tex}
+
+\graphicspath{{./assets}}
+
+% -----------------------------------------------------------------------------
+% Define useful colors.
+\colorlet{black}{black!50!gray}
+\colorlet{green}{green!50!gray}
+\colorlet{blue}{blue!50!gray}
+
+\colorlet{CBlue}{blue!15}
+\colorlet{CBlueD}{blue!95!gray}
+\colorlet{CRed}{red!15}
+\colorlet{CRedD}{red!65!gray}
+\colorlet{CGreenD}{green!60!gray}
+\colorlet{COrange}{orange}
+
+% -----------------------------------------------------------------------------
+
+\usepackage{minted}
+
+% -----------------------------------------------------------------------------
+\setbeamersize{text margin left=0.5cm, text margin right=0.5cm}
+
+% -----------------------------------------------------------------------------
+% Title info
+\title{Open Interfaces for Scientific Computing}
+\author{Dmitry I. Kabanov, Stephan Rave, Mario Ohlberger}
+\institute{Instute for Analysis une Numerics, University of Münster}
+\date{ESCO, June 2024, Pilsen}
+
+% -----------------------------------------------------------------------------
+\begin{document}
+\maketitle
+
+\begin{frame}{Typical problem}
+  \begin{itemize}
+    \item Student Floyd is mostly proficient in Python
+    \item However, for the new project, he needs to run a Monte-Carlo
+          simulation on a forward model implemented as a C solver
+    \item Which means that he needs to write bindings to invoke the solver
+    \item He learns about another solver and wants to try it
+    \item \alert{Two problems:} different languages and different interfaces
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Traditional way}
+  \begin{minipage}{0.45\textwidth}
+    \begin{itemize}
+      \item For a solver in C provide bindings to Python, Julia, R, \dots, $L$ languages
+      \item Repeat for a set of $I$ implementations of algorithms and $L$ languages
+      \item It leads to $\mathcal O(L \times I)$ amount of work if we want to provide
+            bindings for each algorithm in each language
+    \end{itemize}
+  \end{minipage}\hfill
+  \begin{minipage}{0.45\textwidth}
+    \input{tikz/pairwise_bindings.tex}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}{Another solution}
+  \begin{itemize}
+    \item To solve both of this problems:
+          \begin{itemize}
+            \item provide automatic bindings between different languages
+            \item provide generic interfaces for typical numerical problems
+            \item Examples of generic interfaces are:
+                  \begin{itemize}
+                    \item \texttt{PyMOR} for model-order reduction simulations
+                    \item  \texttt{scipy.integrate} in Python
+                          and \texttt{OrdinaryDiffEqs.jl} in Julia for solving initial-value problems for ODEs
+                  \end{itemize}
+          \end{itemize}
+    \item However, the above packages provide solutions only
+          to the multiple-interfaces problem, not to the problem
+          of the multiple languages
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{MaRDI Open Interfaces}
+  \begin{minipage}{0.45\textwidth}
+    To solve both problems simultaneously:
+    \begin{itemize}
+      \item Provide a mediator library \texttt{OIF} that:
+            \begin{itemize}
+              \item handles data marshalling between different languages
+              \item provides a set of generic interfaces
+                    for typical numerical problems
+            \end{itemize}
+      \item Each interface abstracts out the descrepancies
+            of different implementations
+      \item For $L$ languages and $I$ implementations leads to
+            the $\mathcal O (I + L)$ amount of work
+    \end{itemize}
+  \end{minipage}\hfill%
+  \begin{minipage}{0.50\textwidth}
+    \input{tikz/oif_bindings.tex}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}{Software architecture}
+  \begin{center}
+    \includegraphics[scale=0.09]{arch.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Currently supported languages, data types, problems}
+  \begin{itemize}
+    \item Languages: C, Python, Julia
+    \item Data types:
+          \begin{itemize}
+            \item \texttt{OIF\_INT} - 32-bit integers
+            \item \texttt{OIF\_FLOAT64} - 64-bit floating-point numbers
+            \item \texttt{OIF\_ARRAY\_F64} - arrays of 64-bit floating-point numbers
+            \item \texttt{OIF\_CALLBACK} - callback functions
+            \item \texttt{OIF\_USER\_DATA} - user-data objects of volatile type
+          \end{itemize}
+    \item Interfaces:
+          \begin{itemize}
+            \item (Toy problem) quadratic equations: $ax^2 + bx + c = 0$
+            \item systems of linear algebraic equations: $Ax = b$
+            \item initial-value problems for ODEs \(y'(t) = f(t, y), \  y(t_0) = y_0\)
+          \end{itemize}
+  \end{itemize}
+
+  {\small For C, special data structure \texttt{OIFArrayF64} is developed that packs
+  together array's data, number of dimensions, and shape.
+  This provides unified interfaces in different languages}
+\end{frame}
+
+\begin{frame}[fragile]{Interface for initial-value problems for ODEs}
+  \begin{minipage}{\dimexpr0.22\textwidth-2\tabcolsep}
+    \begin{align*}
+      y'(t)  & = f(t, y) \\
+      y(t_0) & = y_0
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}{\dimexpr0.73\textwidth-2\tabcolsep}
+    \begin{minted}{Python}
+      # Set initial value y(t0) = y0.
+      set_initial_value(y0: np.ndarray, t0: float)
+
+      # Specify right-hand side function f(t, y, ydot, user_data).
+      set_rhs_fn(f: Callback)
+
+      # Specify relative and absolute tolerances.
+      set_tolerances(rtol: float, atol: float)
+
+      # Integrate to time t and write solution to y.
+      integrate(t: float, y: np.ndarray)
+
+      # Set additional data passed to right-hand side function.
+      set_user_data(user_data: object)
+    \end{minted}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[standout]{}
+  \centering
+  \huge{Thank you!}
+\end{frame}
+
+\end{document}
