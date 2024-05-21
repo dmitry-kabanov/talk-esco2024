@@ -177,37 +177,46 @@
 \end{frame}
 
 \begin{frame}{Performance study}
-We solve a 2D Gray--Scott reaction-diffusion system\footnote{Pearson1993 EEEEXXXPAAAND!}:
-\begin{align*}\label{eq:gs-system}
-\begin{split}
-\frac{\partial u}{\partial t} &= d_u \nabla^2 u - u v^2 + F (1 - u), \\
-\frac{\partial v}{\partial t} &= d_v \nabla^2 v + u v^2 - (F + k) v
-\end{split}
-\end{align*}
-with periodic boundary conditions on the domain $[-2.5; 2.5]^2$ with initial
-condition given by \(u = 1\), \(v = 0\) everywhere in the domain, except
-a square of \(40 \times 40\) grid points  centered in the center of the domain,
-which is set to \(u = 0.5 + \mathrm{Uniform}(0; 0.1)\)
-and \(v = 0.25 + \mathrm{Uniform}(0; 0.1)\).
+  We solve a 2D Gray--Scott reaction-diffusion system\footnote{Pearson, J.\ E.
+    \emph{Complex Patterns in a Simple System}, 1993, doi:
+    \href{https://doi.org/10.1126/science.261.5118.189}{%
+      10.1126/science.261.5118.189}}:
+  \begin{align*}\label{eq:gs-system}
+    \begin{split}
+      \frac{\partial u}{\partial t} &= d_u \nabla^2 u - u v^2 + F (1 - u), \\
+      \frac{\partial v}{\partial t} &= d_v \nabla^2 v + u v^2 - (F + k) v
+    \end{split}
+  \end{align*}
+  with periodic boundary conditions on the domain $[-2.5; 2.5]^2$ with initial
+  condition given by \(u = 1\), \(v = 0\) everywhere in the domain, except
+  a square of \(40 \times 40\) grid points  centered in the center of the domain,
+  which is set to \(u = 0.5 + \mathrm{Uniform}(0; 0.1)\)
+  and \(v = 0.25 + \mathrm{Uniform}(0; 0.1)\).
 
-Finatl time 100 with time step 1.
-Parameters \(F = 0.055\), \(k = 0.062\), \(d_u = \num{2e-5}\),
-\(d_v = \num{e-5}\).
-
+  Final time 100 with time step 1.
+  Parameters \(F = 0.055\), \(k = 0.062\), \(d_u = \num{2e-5}\),
+  \(d_v = \num{e-5}\).
 \end{frame}
 
-\begin{frame}{Performance study}
+\begin{frame}{Performance study, cont.}
+  \begin{minipage}{0.48\textwidth}
+    Resolution \(N \in \{64, 128, 256, 512\}\)\\
+    For each \(N\) three runs\\
+    User code is in Python
 
-  \begin{minipage}{\dimexpr0.5\textwidth - 2\tabcolsep}
-  Resolution $N \in \{64, 128, 256, 512\}$.
-
-  Comparison: Using Sundials CVODE solver via Open Interfaces from Python
-  vs direct bindings using \texttt{scikit.odes}\footnote{SCIKIT.ODES!!!}.
-  \end{minipage}%
-  \begin{minipage}{\dimexpr0.5\textwidth - 2\tabcolsep}
-  \centering
-  \includegraphics[scale=0.45]{ivp_cvode_gs_perf_normalized}
+    \vspace{8em}
+    Normalized runtime of the Sundials CVODE solver via Open Interfaces
+    vs direct bindings using the~\texttt{scikit.odes}\footnotemark\
+    software package.
+  \end{minipage}\hfill
+  \begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[scale=0.45]{ivp_cvode_gs_perf_normalized}
   \end{minipage}
+  \footnotetext{%
+      Benny, P.\ K., et al. \emph{bmcage/odes: Release 2.7.0}, 2023, doi:
+      \href{https://doi.org/10.5281/ZENODO.7533040}{10.5281/ZENODO.7533040}
+  }
 \end{frame}
 
 \begin{frame}[standout]{}
