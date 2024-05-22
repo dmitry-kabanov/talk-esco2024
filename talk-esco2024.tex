@@ -158,16 +158,17 @@
   \begin{minipage}{\dimexpr0.73\textwidth-2\tabcolsep}
     \begin{minted}{Python}
       # Set initial value y(t0) = y0.
-      set_initial_value(y0: np.ndarray, t0: float)
+      set_initial_value(y0: array, t0: float64)
 
-      # Specify right-hand side function f(t, y, ydot, user_data).
+      # Specify right-hand side function with signature
+      # f(t: float64, y: array, ydot: array, user_data: object).
       set_rhs_fn(f: Callback)
 
       # Specify relative and absolute tolerances.
-      set_tolerances(rtol: float, atol: float)
+      set_tolerances(rtol: float64, atol: float64)
 
       # Integrate to time t and write solution to y.
-      integrate(t: float, y: np.ndarray)
+      integrate(t: float64, y: array)
 
       # Set additional data passed to right-hand side function.
       set_user_data(user_data: object)
