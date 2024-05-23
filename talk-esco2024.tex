@@ -176,6 +176,22 @@
   \end{minipage}
 \end{frame}
 
+\begin{frame}[fragile]{Example call from C}
+  \begin{minted}{C}
+    OIFArrayF64 *y0 = oif_create_array_f64(1, (intptr_t[1]){N});
+    OIFArrayF64 *y = oif_create_array_f64(1, (intptr_t[1]){N});
+    OIFArrayF64 *grid = oif_create_array_f64(1, (intptr_t[1]){N});
+    ImplHandle implh = oif_init_impl("ivp", impl, 1, 0);
+    status = oif_ivp_set_initial_value(\textbf{implh}, y0, t0);
+    status = oif_ivp_set_rhs_fn(\textbf{implh}, rhs);
+    status = oif_ivp_set_user_data(\textbf{implh}, &dx);
+    for (int i = 0; i < n_time_steps; ++i) {
+        t = t0 + (i + 1) * dt;
+        status = oif_ivp_integrate(implh, t, y);
+    }
+  \end{minted}
+\end{frame}
+
 \begin{frame}{Performance study}
   We solve a 2D Gray--Scott reaction-diffusion system\footnote{Pearson, J.\ E.
     \emph{Complex Patterns in a Simple System}, 1993, doi:
