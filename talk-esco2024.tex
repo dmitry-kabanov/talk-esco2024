@@ -177,17 +177,20 @@
 \end{frame}
 
 \begin{frame}[fragile]{Example call from C}
-  \begin{minted}{C}
+  \begin{minted}[beameroverlays, escapeinside=||]{C}
+    char *impl_name = "scipy_ode_dopri5";
     OIFArrayF64 *y0 = oif_create_array_f64(1, (intptr_t[1]){N});
     OIFArrayF64 *y = oif_create_array_f64(1, (intptr_t[1]){N});
     OIFArrayF64 *grid = oif_create_array_f64(1, (intptr_t[1]){N});
-    ImplHandle implh = oif_init_impl("ivp", impl, 1, 0);
-    status = oif_ivp_set_initial_value(\textbf{implh}, y0, t0);
-    status = oif_ivp_set_rhs_fn(\textbf{implh}, rhs);
-    status = oif_ivp_set_user_data(\textbf{implh}, &dx);
+
+    ImplHandle |\textbf<3>{implh}| = oif_init_impl("ivp", |\textbf<2>{impl\_name}|, 1, 0);
+    status = oif_ivp_set_initial_value(|\textbf<3>{implh}|, y0, t0);
+    status = oif_ivp_set_rhs_fn(|\textbf<3>{implh}|, rhs);
+    status = oif_ivp_set_user_data(|\textbf<3>{implh}|, &dx);
+
     for (int i = 0; i < n_time_steps; ++i) {
         t = t0 + (i + 1) * dt;
-        status = oif_ivp_integrate(implh, t, y);
+        status = oif_ivp_integrate(|\textbf<3>{implh}|, t, y);
     }
   \end{minted}
 \end{frame}
