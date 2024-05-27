@@ -2,10 +2,10 @@
 $pdf_mode = 4;  # Use LuaLaTex
 
 # This variable should be used with $pdf_mode = 1.
-$pdflatex = "pdflatex -interaction=nonstopmode -shell-escape";
+$pdflatex = "pdflatex -interaction=nonstopmode -shell-escape %O %S";
 #
 # This variable is used with $pdf_mode = 4.
-$lualatex = 'lualatex -shell-escape -file-line-error %O %S';
+$lualatex = 'lualatex -shell-escape -file-line-error %O %S -synctex=1';
 
 # Equivalent to using `-pvc` argument in the command line.
 # $preview_continuous_mode = 1;
