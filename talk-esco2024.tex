@@ -151,6 +151,8 @@
   This provides unified interfaces in different languages}
 \end{frame}
 
+\section{Examples with the interface for initial-value problems for ODEs (time integration)}
+
 \begin{frame}[fragile]{Interface for initial-value problems for ODEs}
   \begin{minipage}{\dimexpr0.22\textwidth-2\tabcolsep}
     \begin{align*}
@@ -188,8 +190,8 @@
 
     ImplHandle |\textbf<3>{implh}| = oif_init_impl("ivp", |\textbf<2>{impl\_name}|, 1, 0);
     status = oif_ivp_set_initial_value(|\textbf<3>{implh}|, y0, t0);
-    status = oif_ivp_set_rhs_fn(|\textbf<3>{implh}|, rhs);
-    status = oif_ivp_set_user_data(|\textbf<3>{implh}|, &dx);
+    status = oif_ivp_set_rhs_fn(|\textbf<3>{implh}|, |\textbf<4>{rhs}|);
+    status = oif_ivp_set_user_data(|\textbf<3>{implh}|, |\textbf<5>{&dx}|);
 
     for (int i = 0; i < n_time_steps; ++i) {
         t = t0 + (i + 1) * dt;
@@ -199,8 +201,18 @@
 \end{frame}
 
 \begin{frame}{Example call from C}
-\centering
-\includegraphics[scale=0.5]{ivp_c_burgers_eq}
+  \begin{minipage}{\dimexpr0.5\textwidth - 2\tabcolsep}
+    Inviscid Burgers' equation:
+    \begin{align*}
+      &\pdv{u}{t} + \pdv{\left( u^{2} / 2 \right)}{x} = 0 \\
+      &u(t, 0) = 0.5 - 0.25 \sin \left( \pi x \right)\\
+      &u(t, 0) = u(t, 2)\\
+      &t \in [0, 2], \quad x \in [0, 2]
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}{\dimexpr0.5\textwidth - 2\tabcolsep}
+    \includegraphics[scale=0.5]{ivp_c_burgers_eq}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}{Performance study}
@@ -229,9 +241,10 @@
   \begin{minipage}{0.48\textwidth}
     Resolution \(N \in \{64, 128, 256, 512\}\)\\
     For each \(N\) three runs\\
-    User code is in Python
+    User code is in Python\\
+    Implementation code is in C (Sundials CVODE\footnotemark)
 
-    \vspace{8em}
+    \vspace{6em}
     Normalized runtime of the Sundials CVODE solver via Open Interfaces
     vs direct bindings using the~\texttt{scikit.odes}\footnotemark\
     software package.
@@ -241,8 +254,12 @@
     \includegraphics[scale=0.45]{ivp_cvode_gs_perf_normalized}
   \end{minipage}
   \footnotetext{%
-      Benny, P.\ K., et al. \emph{bmcage/odes: Release 2.7.0}, 2023, doi:
-      \href{https://doi.org/10.5281/ZENODO.7533040}{10.5281/ZENODO.7533040}
+    Hindmarsh, A.\ C. et al. \emph{SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers}, 2005%, doi:
+    %\href{https://doi.org/10.1145/1089014.1089020}{10.1145/1089014.1089020}
+  }
+  \footnotetext{%
+    Benny, P.\ K., et al. \emph{bmcage/odes: Release 2.7.0}, 2023, doi:
+    \href{https://doi.org/10.5281/ZENODO.7533040}{10.5281/ZENODO.7533040}
   }
 \end{frame}
 
