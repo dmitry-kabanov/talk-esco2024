@@ -1,12 +1,14 @@
 \documentclass[10pt, aspectratio=169, progressbar=frametitle]{beamer}
 \usetheme[numbering=fraction]{metropolis}
+% \usetheme[language=en]{UniMS}
+
+\setbeamertemplate{headline}{}
 
 % -----------------------------------------------------------------------------
 % Fonts
 \usepackage[defaultsans,scale=1.0]{lato}
 \usepackage{fourier}
 \usepackage[scale=1.05]{inconsolata}
-\usepackage{microtype}
 \usefonttheme[onlymath]{serif}
 
 % -----------------------------------------------------------------------------
@@ -57,13 +59,15 @@
 \begin{document}
 \maketitle
 
-\begin{frame}{Typical problem}
+\begin{frame}{Typical situation in scientific computing}
   \begin{itemize}
-    \item Student Floyd is mostly proficient in Python
-    \item However, for the new project, he needs to run a Monte-Carlo
-          simulation on a forward model implemented as a C solver
-    \item Which means that he needs to write bindings to invoke the solver
-    \item He learns about another solver and wants to try it
+    \item Often a computational scientist requires
+          a combination of multiple solvers together to conduct experiments
+    \item For example, they prefer to conduct experiments using Python
+          by they need to invoke a solver in C
+    \item Which means that they need to write bindings to invoke the solver
+    \item Further in a project, there's a need to replace the solver with
+          another one
     \item \alert{Two problems:} different languages and different interfaces
   \end{itemize}
 \end{frame}
@@ -200,20 +204,30 @@
   \end{minted}
 \end{frame}
 
-\begin{frame}{Example call from C}
-  \begin{minipage}{\dimexpr0.5\textwidth - 2\tabcolsep}
-    Inviscid Burgers' equation:
+\section{Examples}
+\begin{frame}{Example}
+  \begin{minipage}{\dimexpr0.6\textwidth - 2\tabcolsep}
+  Inviscid Burgers' equation:
     \begin{align*}
-      &\pdv{u}{t} + \pdv{\left( u^{2} / 2 \right)}{x} = 0 \\
+      &\pdv{u}{t} + \pdv{\left( u^{2} / 2 \right)}{x} = 0,
+      \quad t \in [0, 2], \quad x \in [0, 2] \\
       &u(t, 0) = 0.5 - 0.25 \sin \left( \pi x \right)\\
-      &u(t, 0) = u(t, 2)\\
-      &t \in [0, 2], \quad x \in [0, 2]
+      &u(t, 0) = u(t, 2)
     \end{align*}
-  \end{minipage}
-  \begin{minipage}{\dimexpr0.5\textwidth - 2\tabcolsep}
-    \includegraphics[scale=0.5]{ivp_c_burgers_eq}
+
+    Implementations:
+    \begin{itemize}
+      \item Sundials CVODE, Adams--Moulton method
+      \item \texttt{scipy.integrate.ode}, Dormand--Prince method
+      \item \texttt{OrdinaryDiffEq}, Tsitouras method
+    \end{itemize}
+  \end{minipage}\hfill
+  \begin{minipage}{\dimexpr0.4\textwidth - 2\tabcolsep}
+    \includegraphics[scale=0.35]{ivp_c_burgers_eq}
   \end{minipage}
 \end{frame}
+
+\section{What about performance?}
 
 \begin{frame}{Performance study}
   We solve a 2D Gray--Scott reaction-diffusion system\footnote{Pearson, J.\ E.
@@ -251,7 +265,7 @@
   \end{minipage}\hfill
   \begin{minipage}{0.48\textwidth}
     \centering
-    \includegraphics[scale=0.45]{ivp_cvode_gs_perf_normalized}
+    \includegraphics[scale=0.45]{ivp_cvode_gs_performance}
   \end{minipage}
   \footnotetext{%
     Hindmarsh, A.\ C. et al. \emph{SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers}, 2005%, doi:
@@ -261,6 +275,19 @@
     Benny, P.\ K., et al. \emph{bmcage/odes: Release 2.7.0}, 2023, doi:
     \href{https://doi.org/10.5281/ZENODO.7533040}{10.5281/ZENODO.7533040}
   }
+\end{frame}
+
+\begin{frame}{MaRDI}
+  \begin{itemize}
+    \item This project is part of MaRDI---Mathematical Research Data Initiative.
+    \item The overall goal of MaRDI is to improve infrastructure related
+          to mathematics and other scientific dispiplines
+    \item Points of interests are data formats, FAIRness of data
+          (Findable, Accessible, Interoperable, Reproducable), computational
+          workflows
+  \end{itemize}
+  \vspace{-2cm}
+  \includegraphics[scale=0.7]{MaRDI_Logo_S_5_cmyk}
 \end{frame}
 
 \begin{frame}[standout]{}
