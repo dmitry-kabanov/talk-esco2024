@@ -135,15 +135,20 @@
 
 \begin{frame}{Currently supported languages, data types, problems}
   \begin{itemize}
+    \onslide<1->
     \item Languages: C, Python, Julia
+    \onslide<2->
     \item Data types:
           \begin{itemize}
             \item \texttt{OIF\_INT} - 32-bit integers
             \item \texttt{OIF\_FLOAT64} - 64-bit floating-point numbers
             \item \texttt{OIF\_ARRAY\_F64} - arrays of 64-bit floating-point numbers
+            \item \texttt{OIF\_STR} - strings
             \item \texttt{OIF\_CALLBACK} - callback functions
             \item \texttt{OIF\_USER\_DATA} - user-data objects of volatile type
+            \item \texttt{OIF\_CONFIG\_DICT} - option-value pairs
           \end{itemize}
+    \onslide<3->
     \item Interfaces:
           \begin{itemize}
             \item (Toy problem) quadratic equations: $ax^2 + bx + c = 0$
@@ -152,6 +157,7 @@
           \end{itemize}
   \end{itemize}
 
+  \onslide<4->
   {\small For C, special data structure \texttt{OIFArrayF64} is developed that packs
   together array's data, number of dimensions, and shape.
   This provides unified interfaces in different languages}
@@ -178,26 +184,30 @@
       # Specify relative and absolute tolerances.
       set_tolerances(rtol: float64, atol: float64)
 
-      # Integrate to time t and write solution to y.
-      integrate(t: float64, y: array)
-
       # Set additional data passed to right-hand side function.
       set_user_data(user_data: object)
+
+      # Set integrator and its parameters
+      set_integrator(integrator_name: str, params: object)
+
+      # Integrate to time t and write solution to y.
+      integrate(t: float64, y: array)
     \end{minted}
+    }
   \end{minipage}
 \end{frame}
 
 \begin{frame}[fragile]{Example call from C}
   \begin{minted}[beameroverlays, escapeinside=||]{C}
-    char *impl_name = "scipy_ode_dopri5";
+    char *impl_name = "scipy_ode";
     OIFArrayF64 *y0 = oif_create_array_f64(1, (intptr_t[1]){N});
     OIFArrayF64 *y = oif_create_array_f64(1, (intptr_t[1]){N});
     OIFArrayF64 *grid = oif_create_array_f64(1, (intptr_t[1]){N});
 
     ImplHandle |\textbf<3>{implh}| = oif_init_impl("ivp", |\textbf<2>{impl\_name}|, 1, 0);
-    status = oif_ivp_set_initial_value(|\textbf<3>{implh}|, y0, t0);
-    status = oif_ivp_set_rhs_fn(|\textbf<3>{implh}|, |\textbf<4>{rhs}|);
-    status = oif_ivp_set_user_data(|\textbf<3>{implh}|, |\textbf<5>{&dx}|);
+    status = oif_ivp_set_initial_value(|\textbf<3>{implh}|, |\textbf<4>{y0}|, |\textbf<4>{t0}|);
+    status = oif_ivp_set_rhs_fn(|\textbf<3>{implh}|, |\textbf<5>{rhs}|);
+    status = oif_ivp_set_user_data(|\textbf<3>{implh}|, |\textbf<6>{&dx}|);
 
     for (int i = 0; i < n_time_steps; ++i) {
         t = t0 + (i + 1) * dt;
@@ -206,8 +216,7 @@
   \end{minted}
 \end{frame}
 
-\section{Examples}
-\begin{frame}{Example}
+\begin{frame}{Example 1: Explicit solvers}
   \begin{minipage}{\dimexpr0.6\textwidth - 2\tabcolsep}
   Inviscid Burgers' equation:
     \begin{align*}
