@@ -238,6 +238,60 @@
   \end{minipage}
 \end{frame}
 
+\begin{frame}[fragile]{Example 2: Implicit solvers}
+  \begin{columns}
+  \column{\dimexpr 0.4\textwidth - 2\tabcolsep}
+    Van der Pol equation:
+    \[
+      \odv[order=2]{x}{t} - \mu
+      \left(
+        1 - x^{2}
+      \right) \odv{x}{t} + x = 0
+    \]
+    with \(\mu = 1000\) (stiff).\par
+
+    \vspace{1.7em}
+    \onslide<2->
+    User code in Python:
+    \begin{minted}[autogobble, beameroverlays, escapeinside=||]{C}
+      p = VdPEquationProblem(
+        mu=1000,
+        tfinal=3000
+      )
+      s = IVP("scipy_ode")
+      s.set_initial_value(p.y0, p.t0)
+      s.set_rhs_fn(p.compute_rhs)
+    \end{minted}
+  \column{0.6\textwidth - 2\tabcolsep}
+    \onslide<3-5>
+    \begin{minted}[autogobble, beameroverlays, escapeinside=||]{C}
+      s.set_integrator("dopri5", {"nsteps": 100_000})
+    \end{minted}
+    Solving with \texttt{scipy.ode.dopri5} fails:\\
+    \texttt{UserWarning: dopri5: problem is probably stiff}
+
+    \vspace{1.7em}
+    \onslide<4-5>
+    Switching to \texttt{scipy.ode.vode} with BDF succeeds:
+    \begin{minted}[autogobble, beameroverlays, escapeinside=||]{C}
+      s.set_integrator("vode", {"nsteps": 40_000})
+    \end{minted}
+
+    \vspace{1.7em}
+    \onslide<5-5>
+    More efficient solution using \texttt{OrdinaryDiffEq.jl}:
+    \begin{minted}[autogobble, beameroverlays, escapeinside=||]{C}
+      s = IVP("jl_diffeq")
+      s.set_integrator("Rosenbrock23")
+    \end{minted}
+
+    \onslide<6->
+    \begin{tikzpicture}[remember picture, overlay]
+      \includegraphics[scale=0.50]{ivp_py_vdp_eq}
+    \end{tikzpicture}
+  \end{columns}
+\end{frame}
+
 \section{What about performance?}
 
 \begin{frame}{Performance study}
